@@ -132,22 +132,25 @@ workflows:
       - name: Build with for ios
         script: |
           shorebird release ios --no-codesign
-      # - name: nav to ios
-      #   script: |
-      #     cd build/ios/archive
-      #     ls
-      #     if [ -d "Runner.xcarchive" ]; then
-      #         # Export the .ipa file from the .xcarchive without an ExportOptions.plist
-      #         xcodebuild -exportArchive \
-      #           -archivePath Runner.xcarchive \
-      #           -exportPath Runner.ipa
+      - name: nav to ios
+        script: |
+          mv test.plist build/ios/archive
+          ls
+          cd build/ios/archive
+          ls
+          if [ -d "Runner.xcarchive" ]; then
+              # Export the .ipa file from the .xcarchive without an ExportOptions.plist
+              xcodebuild -exportArchive \
+                -archivePath Runner.xcarchive \
+                -exportPath Runner.ipa \
+                -exportOptionsPlist test.plist
 
-      #         # Move the generated .ipa to the root or artifacts folder
-      #         mv Runner.ipa build/ios
-      #     else
-      #       echo "Runner.xcarchive not found!"
-      #       exit 1
-      #     fi
+              # Move the generated .ipa to the root or artifacts folder
+              mv Runner.ipa build/ios
+          else
+            echo "Runner.xcarchive not found!"
+            exit 1
+          fi
 
     artifacts:
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
