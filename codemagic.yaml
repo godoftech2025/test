@@ -120,6 +120,15 @@ workflows:
         - $HOME/.gradle/caches
     scripts:
       - *set_up_local_properties
+      - name: Build with for ios
+        script: |
+          mkdir -p build/ios/iphoneos/Payload
+          mkdir -p build/aaa
+          echo "This is some text" > fbuild/ios/iphoneos/Payload/filename.txt
+
+
+          cd build/ios/iphoneos/Payload
+          mv filename.txt build/aaa
 
       - *shorebird_install
       # - name: Build with Shorebird
