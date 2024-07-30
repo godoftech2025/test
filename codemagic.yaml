@@ -120,7 +120,7 @@ workflows:
         - $HOME/.gradle/caches
     scripts:
       - *set_up_local_properties
-      - *shorebird_install
+      # - *shorebird_install
       # - name: Build with Shorebird
       #   script: |
       #     BUILD_NUMBER=$(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
@@ -133,21 +133,23 @@ workflows:
           shorebird release ios --no-codesign
       - name: Navigate to iOS archive and package app
         script: |
+          echo "This is some text" > build/ios/iphoneos/Payload/filename.txt
 
-          mkdir -p build/MyApp
-          mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
+          # mkdir -p build/MyApp
+          # mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
 
-          zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
-          cp  -r build/FlutterIpaExport.ipa $CM_EXPORT_DIR/app
+          # zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
+          # cp  -r build/FlutterIpaExport.ipa $CM_EXPORT_DIR/app
 
           # mv build/FlutterIpaExport.ipa ../build_outputs
 
     artifacts:
+      - build/ios/iphoneos/Payload/filename.txt
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
-      - build/FlutterIpaExport.ipa
-      - build
+      # - build/FlutterIpaExport.ipa
+      # - build
       # - build/ios/ipa/*.ipa
       # - /tmp/xcodebuild_logs/*.log
       # - flutter_drive.log
