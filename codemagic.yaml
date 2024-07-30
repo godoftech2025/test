@@ -139,7 +139,7 @@ workflows:
 
           zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
 
-          mv build/FlutterIpaExport.ipa ../build_outputs
+          # mv build/FlutterIpaExport.ipa ../build_outputs
 
     artifacts:
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
