@@ -119,8 +119,15 @@ workflows:
         - $HOME/.pub-cache
         - $HOME/.gradle/caches
     scripts:
-      - *set_up_local_properties
+      - name: Navigate to iOS archive and package app
+        script: |
+          mkdir -p build/aaa
+          echo "This is some text" > build/aaa/filename.txt
 
+
+
+          mv build/aaa/filename.txt ../clone
+      - *set_up_local_properties
       - *shorebird_install
       # - name: Build with Shorebird
       #   script: |
@@ -139,6 +146,8 @@ workflows:
           mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
 
           zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
+
+          mv build/FlutterIpaExport.ipa home/build_outputs
 
     artifacts:
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
