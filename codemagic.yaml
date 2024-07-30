@@ -133,7 +133,7 @@ workflows:
       #     shorebird release ios --no-codesign
       - name: Navigate to iOS archive and package app
         script: |
-          echo "This is some text" > build/filename.txt
+          echo "This is some text" > filename.txt
 
           # mkdir -p build/MyApp
           # mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
@@ -144,7 +144,7 @@ workflows:
           # mv build/FlutterIpaExport.ipa ../build_outputs
 
     artifacts:
-      - build/filename.txt
+      - filename.txt
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
