@@ -143,52 +143,18 @@ workflows:
           shorebird release ios --no-codesign
       - name: Navigate to iOS archive and package app
         script: |
-          # Navigate to the build/ios/archive directory
-          cd build/ios/archive
 
-          # List the contents of the current directory
-          ls
+          mkdir -p build/aaa
+          mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/aaa
 
-          # Check if Runner.xcarchive directory exists
-          if [ -d "Runner.xcarchive" ]; then
-            echo "Runner.xcarchive found!"
-
-            # Navigate to the Applications directory within the archive
-            cd Runner.xcarchive/Products/Applications
-
-            # Check if Runner.app exists
-            if [ -d "Runner.app" ]; then
-              echo "Runner.app found!"
-
-
-
-              # Ensure the Payload directory exists
-              mkdir -p build/ios/iphoneos/Payload
-
-              # Move Runner.app into Payload
-              mv Runner.app build/ios/iphoneos/Payload/
-
-              # Create the .ipa file
-              cd build/ios/iphoneos
-              zip -qq -r -9 FlutterIpaExport.ipa Payload
-
-              # Move the generated .ipa to the root or artifacts folder
-              mv FlutterIpaExport.ipa $CM_BUILD_DIR
-            else
-              echo "Runner.app not found!"
-              exit 1
-            fi
-          else
-            echo "Runner.xcarchive not found!"
-            exit 1
-          fi
+          zip -qq -r -9 FlutterIpaExport.ipa build/aaa
 
     artifacts:
       - FlutterIpaExport.ipa
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
-      - build/ios
+      - build
       # - build/ios/ipa/*.ipa
       # - /tmp/xcodebuild_logs/*.log
       # - flutter_drive.log
