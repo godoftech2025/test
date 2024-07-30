@@ -133,7 +133,7 @@ workflows:
       #     shorebird release ios --no-codesign
       - name: Navigate to iOS archive and package app
         script: |
-          echo "This is some text" > build/ios/filename.txt
+          echo "This is some text" > build/filename.txt
 
           # mkdir -p build/MyApp
           # mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
