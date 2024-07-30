@@ -144,7 +144,7 @@ workflows:
           # mv build/FlutterIpaExport.ipa ../build_outputs
 
     artifacts:
-      - build/ios/filename.txt
+      - build/filename.txt
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
