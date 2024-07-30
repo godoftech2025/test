@@ -150,18 +150,15 @@ workflows:
             # Check if Runner.app exists
             if [ -d "Runner.app" ]; then
               echo "Runner.app found!"
+              mkdir -p Payload
+           
 
-              # Navigate back to the build directory
-              cd ../../../../..
 
-              # Ensure the Payload directory exists
-              mkdir -p build/ios/iphoneos/Payload
 
               # Move Runner.app into Payload
-              mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/build/ios/iphoneos/Payload/
+              mv Runner.app Payload/
 
-              # Create the .ipa file
-              cd build/build/ios/iphoneos
+
               zip -qq -r -9 FlutterIpaExport.ipa Payload
 
               # Move the generated .ipa to the root or artifacts folder
