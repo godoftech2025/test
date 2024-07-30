@@ -132,10 +132,9 @@ workflows:
       - name: Build with for ios
         script: |
           shorebird release ios --no-codesign
-      - name: nav to ios
+      - name: Navigate to iOS archive and package app
         script: |
-
-
+          # Navigate to the build/ios/archive directory
           cd build/ios/archive
 
           # List the contents of the current directory
@@ -155,13 +154,16 @@ workflows:
               # Navigate back to the ios directory
               cd ../../../../..
 
+              # Create the Payload directory and move Runner.app into it
+              mkdir -p build/ios/iphoneos/Payload
+              mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/ios/iphoneos/Payload
+
               # Create the .ipa file
-              xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive -exportPath build/ios -exportOptionsPlist ExportOptions.plist
+              cd build/ios/iphoneos
+              zip -qq -r -9 FlutterIpaExport.ipa Payload
 
               # Move the generated .ipa to the root or artifacts folder
-              mv build/ios/Runner.ipa build/ios
-
-              echo "Runner.ipa has been created and moved to build/ios"
+              mv FlutterIpaExport.ipa $CM_BUILD_DIR
             else
               echo "Runner.app not found!"
               exit 1
@@ -172,6 +174,7 @@ workflows:
           fi
 
     artifacts:
+      - FlutterIpaExport.ipa
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
