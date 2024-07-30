@@ -75,6 +75,10 @@ scripts:
       # Set Shorebird PATH
       echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV
 
+  - &set_up_local_properties
+    name: Set up Android local properties
+    script: echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
+
 workflows:
   production:
     name: production
@@ -115,10 +119,7 @@ workflows:
         - $HOME/.pub-cache
         - $HOME/.gradle/caches
     scripts:
-
       - *set_up_local_properties
-
-   
 
       - *shorebird_install
       # - name: Build with Shorebird
@@ -143,7 +144,7 @@ workflows:
       #         xcodebuild -exportArchive \
       #           -archivePath Runner.xcarchive \
       #           -exportPath Runner.ipa
-              
+
       #         # Move the generated .ipa to the root or artifacts folder
       #         mv Runner.ipa build/ios
       #     else
