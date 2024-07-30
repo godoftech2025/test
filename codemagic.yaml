@@ -131,7 +131,7 @@ workflows:
 
       - name: Build with for ios
         script: |
-          shorebird release ios
+          shorebird release ios --no-codesign
       # - name: nav to ios
       #   script: |
       #     cd build/ios/archive
