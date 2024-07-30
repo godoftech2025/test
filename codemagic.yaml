@@ -120,15 +120,6 @@ workflows:
         - $HOME/.gradle/caches
     scripts:
       - *set_up_local_properties
-      - name: Build with for ios
-        script: |
-          mkdir -p build/ios/iphoneos/Payload
-          mkdir -p build/aaa
-          echo "This is some text" > build/ios/iphoneos/Payload/filename.txt
-
-
-
-          mv build/ios/iphoneos/Payload/filename.txt build/aaa
 
       - *shorebird_install
       # - name: Build with Shorebird
@@ -144,16 +135,16 @@ workflows:
       - name: Navigate to iOS archive and package app
         script: |
 
-          mkdir -p build/aaa
-          mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/aaa
+          mkdir -p build/MyApp
+          mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
 
-          zip -qq -r -9 FlutterIpaExport.ipa build/aaa
+          zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
 
     artifacts:
-      - FlutterIpaExport.ipa
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
       # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
       # - build/app/outputs/mapping/**/mapping.txt
+      - build/FlutterIpaExport.ipa
       - build
       # - build/ios/ipa/*.ipa
       # - /tmp/xcodebuild_logs/*.log
