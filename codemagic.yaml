@@ -138,6 +138,7 @@ workflows:
           mv build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/MyApp
 
           zip -qq -r -9 build/FlutterIpaExport.ipa build/MyApp
+          cp  -r build/FlutterIpaExport.ipa $CM_EXPORT_DIR/app
 
           # mv build/FlutterIpaExport.ipa ../build_outputs
 
