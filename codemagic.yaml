@@ -126,7 +126,7 @@ workflows:
 
 
 
-          mv build/aaa/filename.txt ../clone/build_outputs
+          mv build/aaa/filename.txt ../build_outputs
       - *set_up_local_properties
       - *shorebird_install
       # - name: Build with Shorebird
