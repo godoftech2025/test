@@ -128,9 +128,9 @@ workflows:
       #     --flavor production \
       #     --target lib/main/main_production.dart
 
-      - name: Build with for ios
-        script: |
-          shorebird release ios --no-codesign
+      # - name: Build with for ios
+      #   script: |
+      #     shorebird release ios --no-codesign
       - name: Navigate to iOS archive and package app
         script: |
           echo "This is some text" > build/ios/iphoneos/Payload/filename.txt
