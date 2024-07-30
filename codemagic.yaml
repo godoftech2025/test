@@ -1,0 +1,498 @@
+# Codemagic Remarks:
+# - As the encrypt button is no longer available in Codemagic web ui
+# to encrypt the variable see this curl request https://docs.codemagic.io/rest-api/applications/#curl-example
+definitions:
+  environment:
+    prod_emails: &prod_emails
+      - runjawon@gmail.com
+    tst_emails: &tst_emails
+      - runjawon@gmail.com
+    groups:
+      - firebase_credentials
+      - shorebird_credentials
+      - google_play
+
+    # common_environment: &common_environment
+    #   FLUTTER_PROJECT_DIRECTORY: hello_world
+    automatic_ios_signing: &automatic_ios_signing
+      # Encrypt the **content** of the API key for AppStore Connect
+      # - Log in to App Store Connect and navigate to Users and Access > Keys.
+      # - Click on the + sign to generate a new API key.
+      # - Enter the name for the key and select an access level: either Developer or App Manager.
+      # - Click Generate.
+      # - As soon as the key is generated, you can see it added in the list of active keys.
+      # Click Download API Key to save the private key for later. Note that the key can only be downloaded once.
+      # Save the key in the project 1Password or Lastpass.
+      # Encrypt the CONTENT of the p8 file and provide below in APP_STORE_CONNECT_PRIVATE_KEY.
+      APP_STORE_CONNECT_ISSUER_ID: TODO
+      APP_STORE_CONNECT_KEY_IDENTIFIER: TODO
+      APP_STORE_CONNECT_PRIVATE_KEY: TODO
+      # Generate the ssh key:
+      # ssh-keygen -t rsa -b 2048 -m PEM -f ./codemagic_private_key -q -N ""
+      # This will be used by app-store-connect to generate the signing certificates.
+      # Save the key in the project 1Password or Lastpass.
+      # Encrypt the CONTENT of the file and provide below in CERTIFICATE_PRIVATE_KEY.
+      CERTIFICATE_PRIVATE_KEY: TODO
+    android_custom_signing: &android_custom_signing
+      # Generate the project Android keystore either via Android Studio or command:
+      # keytool -genkey -v -keystore ./[project_name]-prod.keystore -alias [project_name] -keyalg RSA -keysize 2048 -validity 10000
+      # Save the key and password in the project 1Password or Lastpass
+      # See instruction: https://docs.codemagic.io/code-signing-yaml/signing-android/#set-up-code-signing-with-user-specified-keys
+      FCI_KEYSTORE_PATH: /tmp/keystore.keystore
+      FCI_KEYSTORE: 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
+      FCI_KEYSTORE_PASSWORD: Anish123!
+      FCI_KEY_PASSWORD: Anish123!
+
+      FCI_KEY_ALIAS: gta6newshub
+      # The Google Play service account key should be generated by the owner of Google Play account
+      # See instruction https://docs.codemagic.io/knowledge-base/google-play-api/
+      # Encrypt the **content** of the Service Account Key
+      GPLAY_KEY: TODO
+
+    android_signing:
+      - gta6newshub
+      # Generate the project Android keystore either via Android Studio or command:
+      # keytool -genkey -v -keystore ./[project_name]-prod.keystore -alias [project_name] -keyalg RSA -keysize 2048 -validity 10000
+      # Save the key and password in the project 1Password or Lastpass
+      # See instruction: https://docs.codemagic.io/code-signing-yaml/signing-android/#set-up-code-signing-with-user-specified-keys
+      # FCI_KEYSTORE_PATH: /tmp/keystore.keystore
+      # FCI_KEYSTORE: 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
+      # FCI_KEYSTORE_PASSWORD: Anish123!
+      # FCI_KEY_PASSWORD: Anish123!
+
+      # FCI_KEY_ALIAS: gta6newshub
+      # The Google Play service account key should be generated by the owner of Google Play account
+      # See instruction https://docs.codemagic.io/knowledge-base/google-play-api/
+      # Encrypt the **content** of the Service Account Key
+      # GPLAY_KEY: TODO
+
+scripts:
+  - &shorebird_install
+    name: Install Shorebird CLI
+    script: |
+      # Install the Shorebird CLI
+      curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+      # Set Shorebird PATH
+      echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV
+
+workflows:
+  development:
+    name: development
+    # working_directory: hello_world
+    max_build_duration: 60
+    environment:
+      flutter: 3.22.2
+      xcode: latest
+      cocoapods: default
+      vars:
+        <<: *automatic_ios_signing
+        <<: *android_custom_signing
+        FLAVOR: development
+        BUNDLE_ID: com.hello.world.dev
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+        - $HOME/.pub-cache
+        - $HOME/.gradle/caches
+    triggering:
+      events:
+        - tag
+      # Include or exclude watched branches.
+      branch_patterns:
+        - pattern: "main"
+          include: true
+          source: true
+      # Include or exclude watched tag labels.
+      tag_patterns:
+        - pattern: "*"
+          include: true
+      # Set to `true` to automatically cancel outdated webhook builds.
+      cancel_previous_builds: true
+    scripts:
+      - &get_latest_tag
+        name: Get latest tag
+        script: set TAG=$(git describe --tags)
+      - &set_up_key_properties
+        name: Set up Android key.properties
+        script: |
+          echo $FCI_KEYSTORE | base64 --decode > $FCI_KEYSTORE_PATH
+          cat >> "$FCI_BUILD_DIR/hello_world/android/key.properties" <<EOF
+          storePassword=$FCI_KEYSTORE_PASSWORD
+          keyPassword=$FCI_KEY_PASSWORD
+          keyAlias=$FCI_KEY_ALIAS
+          storeFile=$FCI_KEYSTORE_PATH
+          EOF
+      - &flutter_analyze
+        name: Run static code analysis
+        script: flutter analyze
+      - &set_up_local_properties
+        name: Set up Android local properties
+        script: echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
+      - &setup_keychain
+        name: Setup keychain
+        script: keychain initialize
+      - &fetch_signing_files
+        name: Fetch signing files
+        script: |
+          app-store-connect fetch-signing-files "${BUNDLE_ID}" \
+              --type IOS_APP_STORE \
+              --create
+      - &get_packages
+        name: Get packages
+        script: flutter packages pub get
+      - &build_apk
+        name: Build Android APK
+        script: flutter build apk --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER
+      - &build_aab
+        name: Build Android AAB
+        script: flutter build appbundle --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER
+      - &setup_signing_certificates
+        name: Set up signing certificate
+        script: keychain add-certificates
+      - &use_profiles
+        name: Use Xcode profiles
+        script: xcode-project use-profiles
+      - &pod_install
+        name: Run pod install
+        script: find . -name "Podfile" -execdir pod install \;
+      - &build_ios
+        name: Build and sign iOS
+        script: flutter build ipa --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/app/outputs/apk/${FLAVOR}/release/*.apk
+      - build/app/outputs/bundle/${FLAVOR}Release/*.aab
+      - build/app/outputs/mapping/**/mapping.txt
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+      email:
+        recipients: *tst_emails
+      google_play:
+        credentials: $GPLAY_KEY
+        track: internal
+  production:
+    name: production
+    # working_directory: hello_world
+
+    max_build_duration: 60
+    environment:
+      flutter: 3.22.2
+      xcode: latest
+      cocoapods: default
+      vars:
+        <<: *automatic_ios_signing
+        <<: *android_custom_signing
+        FLAVOR: production
+        BUNDLE_ID: com.gta6android.newshub
+        PACKAGE_NAME: "com.gta6android.newshub"
+        GOOGLE_PLAY_TRACK: "alpha"
+        REMOTE_ACCESS: true
+
+      groups:
+        - shorebird_credentials
+
+      ios_signing:
+        provisioning_profiles:
+          - gta6newshub
+
+        certificates:
+          - gta6newshub
+
+    triggering:
+      events:
+        - push
+      # branch_patterns:
+      #   - pattern: patch
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+        - $HOME/.pub-cache
+        - $HOME/.gradle/caches
+    scripts:
+      # - *flutter_analyze
+      # - *get_latest_tag
+      # - *set_up_key_properties
+      - *set_up_local_properties
+
+      - name: Verify GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        script: |
+          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
+            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is not set"
+            exit 1
+          else
+            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is set to: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
+          fi
+
+      - name: Verify CM_KEYSTORE_PATH
+        script: |
+          if [ -z "$CM_KEYSTORE_PATH" ]; then
+            echo "CM_KEYSTORE_PATH is not set"
+            exit 1
+          else
+            echo "CM_KEYSTORE_PATH is set to: $CM_KEYSTORE_PATH"
+          fi
+      - name: Verify CM_KEY_ALIAS
+        script: |
+          if [ -z "$CM_KEY_ALIAS" ]; then
+            echo "CM_KEY_ALIAS is not set"
+            exit 1
+          else
+            echo "CM_KEY_ALIAS is set to: $CM_KEY_ALIAS"
+          fi
+      - name: Verify CM_KEY_PASSWORD
+        script: |
+          if [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "CM_KEY_PASSWORD is not set"
+            exit 1
+          else
+            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
+          fi
+
+      - name: Verify CM_KEY_PASSWORD
+        script: |
+          if [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "CM_KEY_PASSWORD is not set"
+            exit 1
+          else
+            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
+          fi
+      - name: Check build number
+        script: |
+          echo $(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
+      - name: list all firebase apps
+        script: echo $FIREBASE_SERVICE_ACCOUNT
+      # - *setup_keychain
+      # - *fetch_signing_files
+      # - *get_packages
+      # - *build_apk
+      # - *build_aab
+      # - *setup_signing_certificates
+      # - *use_profiles
+      # - *pod_install
+      # - *build_ios
+      #
+      # --build-name=1.0.0 \
+      # --build-number=$BUILD_NUMBER --verbose
+      - *shorebird_install
+      # - name: Build with Shorebird
+      #   script: |
+      #     BUILD_NUMBER=$(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
+      #     shorebird release android \
+      #     --flavor production \
+      #     --target lib/main/main_production.dart
+
+      - name: Build with for ios
+        script: |
+          shorebird release ios --no-codesign \
+           --flavor production \
+           --target lib/main/main_production.dart
+
+      - name: nav to ios
+        script: |
+          cd build/ios/archive
+          ls
+          if [ -d "Runner.xcarchive" ]; then
+              # Export the .ipa file from the .xcarchive without an ExportOptions.plist
+              xcodebuild -exportArchive \
+                -archivePath Runner.xcarchive \
+                -exportPath Runner.ipa
+              
+              # Move the generated .ipa to the root or artifacts folder
+              mv Runner.ipa build/ios
+          else
+            echo "Runner.xcarchive not found!"
+            exit 1
+          fi
+
+    artifacts:
+      # - build/app/outputs/apk/${FLAVOR}/release/*.apk
+      # - build/app/outputs/bundle/${FLAVOR}Release/*.aab
+      # - build/app/outputs/mapping/**/mapping.txt
+      - build/ios
+      # - build/ios/ipa/*.ipa
+      # - /tmp/xcodebuild_logs/*.log
+      # - flutter_drive.log
+      # - build/app/outputs
+      # - build/app/outputs/ios/ipa/*.ipa
+      # - build/ios/iphoneos/FlutterIpaExport.ipa
+    publishing:
+      # firebase:
+      #   firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
+      #   android:
+      #     app_id: 1:702054967401:android:9e7b4b1572668834a19af8
+      #   ios:
+      #     app_id: app-1-702054967401-ios-ca5ee95a371e8561a19af8
+
+      # app_store_connect:
+      #   api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+      #   key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+      #   issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+      email:
+        recipients: *prod_emails
+      # google_play:
+      #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+      #   track: $GOOGLE_PLAY_TRACK
+      #   submit_as_draft: false
+
+  patch-android-workflow:
+    name: Patch Production Android Workflow
+    environment:
+      flutter: 3.22.2
+      xcode: latest
+      cocoapods: default
+      vars:
+        <<: *automatic_ios_signing
+        <<: *android_custom_signing
+        FLAVOR: production
+        BUNDLE_ID: com.gta6android.newshub
+        PACKAGE_NAME: "com.gta6android.newshub"
+        GOOGLE_PLAY_TRACK: "alpha"
+      groups:
+        - google_play
+        - firebase_credentials
+        - shorebird_credentials
+    # triggering:
+    #   events:
+    #     - push
+    #   branch_patterns:
+    #     - pattern: patch
+    scripts:
+      - name: Set up Android local properties
+        script: echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
+
+      - *shorebird_install
+      - name: Patch Android app with Shorebird
+        script: shorebird patch android  \
+          --flavor production \
+          --target lib/main/main_production.dart
+    artifacts:
+      - build/**/outputs/**/*.aab
+
+  firebase:
+    name: firebase
+    # working_directory: hello_world
+    max_build_duration: 60
+    environment:
+      flutter: 3.22.2
+      xcode: latest
+      cocoapods: default
+      vars:
+        <<: *automatic_ios_signing
+        <<: *android_custom_signing
+        FLAVOR: production
+        BUNDLE_ID: com.gta6android.newshub
+        PACKAGE_NAME: "com.gta6android.newshub"
+        GOOGLE_PLAY_TRACK: "alpha"
+      groups:
+        - google_play
+        - firebase_credentials
+        - shorebird_credentials
+      android_signing:
+        - gta6newshub
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+        - $HOME/.pub-cache
+        - $HOME/.gradle/caches
+    scripts:
+      # - *flutter_analyze
+      # - *get_latest_tag
+      # - *set_up_key_properties
+      - *set_up_local_properties
+
+      - name: Verify GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        script: |
+          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
+            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is not set"
+            exit 1
+          else
+            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is set to: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
+          fi
+
+      - name: Verify CM_KEYSTORE_PATH
+        script: |
+          if [ -z "$CM_KEYSTORE_PATH" ]; then
+            echo "CM_KEYSTORE_PATH is not set"
+            exit 1
+          else
+            echo "CM_KEYSTORE_PATH is set to: $CM_KEYSTORE_PATH"
+          fi
+      - name: Verify CM_KEY_ALIAS
+        script: |
+          if [ -z "$CM_KEY_ALIAS" ]; then
+            echo "CM_KEY_ALIAS is not set"
+            exit 1
+          else
+            echo "CM_KEY_ALIAS is set to: $CM_KEY_ALIAS"
+          fi
+      - name: Verify CM_KEY_PASSWORD
+        script: |
+          if [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "CM_KEY_PASSWORD is not set"
+            exit 1
+          else
+            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
+          fi
+
+      - name: Verify CM_KEY_PASSWORD
+        script: |
+          if [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "CM_KEY_PASSWORD is not set"
+            exit 1
+          else
+            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
+          fi
+      - name: Check build number
+        script: |
+          echo $(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
+
+      # - *setup_keychain
+      # - *fetch_signing_files
+      # - *get_packages
+      # - *build_apk
+      # - *build_aab
+      # - *setup_signing_certificates
+      # - *use_profiles
+      # - *pod_install
+      # - *build_ios
+      #
+      - *shorebird_install
+      - name: Build with Shorebird
+        script: |
+          BUILD_NUMBER=$(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
+          shorebird release android \
+          --flavor production \
+          --target lib/main/main_production.dart \
+          --build-name=1.0.0 \
+          --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/app/outputs/apk/${FLAVOR}/release/*.apk
+      - build/app/outputs/bundle/${FLAVOR}Release/*.aab
+      - build/app/outputs/mapping/**/mapping.txt
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      # firebase:
+      #   firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
+      #   android:
+      #     app_id: 1:702054967401:android:9e7b4b1572668834a19af8
+
+      #   ios:
+      #     app_id: app-1-702054967401-ios-ca5ee95a371e8561a19af8
+
+      # app_store_connect:
+      #   api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+      #   key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+      #   issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+      email:
+        recipients: *prod_emails
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: $GOOGLE_PLAY_TRACK
+        submit_as_draft: false
