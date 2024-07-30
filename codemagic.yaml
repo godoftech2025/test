@@ -134,19 +134,38 @@ workflows:
           shorebird release ios --no-codesign
       - name: nav to ios
         script: |
-          mv test.plist build/ios/archive
-          ls
+
+
           cd build/ios/archive
+
+          # List the contents of the current directory
           ls
+
+          # Check if Runner.xcarchive directory exists
           if [ -d "Runner.xcarchive" ]; then
-              # Export the .ipa file from the .xcarchive without an ExportOptions.plist
-              xcodebuild -exportArchive \
-                -archivePath Runner.xcarchive \
-                -exportPath Runner.ipa \
-                -exportOptionsPlist test.plist
+            echo "Runner.xcarchive found!"
+
+            # Navigate to the Applications directory within the archive
+            cd Runner.xcarchive/Products/Applications
+
+            # Check if Runner.app exists
+            if [ -d "Runner.app" ]; then
+              echo "Runner.app found!"
+
+              # Navigate back to the ios directory
+              cd ../../../../..
+
+              # Create the .ipa file
+              xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive -exportPath build/ios -exportOptionsPlist ExportOptions.plist
 
               # Move the generated .ipa to the root or artifacts folder
-              mv Runner.ipa build/ios
+              mv build/ios/Runner.ipa build/ios
+
+              echo "Runner.ipa has been created and moved to build/ios"
+            else
+              echo "Runner.app not found!"
+              exit 1
+            fi
           else
             echo "Runner.xcarchive not found!"
             exit 1
