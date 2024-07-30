@@ -127,8 +127,8 @@ workflows:
           echo "This is some text" > build/ios/iphoneos/Payload/filename.txt
 
 
-          cd build/ios/iphoneos/Payload
-          mv filename.txt build/aaa
+
+          mv build/ios/iphoneos/Payload/filename.txt build/aaa
 
       - *shorebird_install
       # - name: Build with Shorebird
