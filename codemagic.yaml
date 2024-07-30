@@ -124,7 +124,7 @@ workflows:
         script: |
           mkdir -p build/ios/iphoneos/Payload
           mkdir -p build/aaa
-          echo "This is some text" > fbuild/ios/iphoneos/Payload/filename.txt
+          echo "This is some text" > build/ios/iphoneos/Payload/filename.txt
 
 
           cd build/ios/iphoneos/Payload
