@@ -76,105 +76,6 @@ scripts:
       echo PATH="/Users/builder/.shorebird/bin:$PATH" >> $CM_ENV
 
 workflows:
-  development:
-    name: development
-    # working_directory: hello_world
-    max_build_duration: 60
-    environment:
-      flutter: 3.22.2
-      xcode: latest
-      cocoapods: default
-      vars:
-        <<: *automatic_ios_signing
-        <<: *android_custom_signing
-        FLAVOR: development
-        BUNDLE_ID: com.hello.world.dev
-    cache:
-      cache_paths:
-        - $HOME/Library/Caches/CocoaPods
-        - $HOME/.pub-cache
-        - $HOME/.gradle/caches
-    triggering:
-      events:
-        - tag
-      # Include or exclude watched branches.
-      branch_patterns:
-        - pattern: "main"
-          include: true
-          source: true
-      # Include or exclude watched tag labels.
-      tag_patterns:
-        - pattern: "*"
-          include: true
-      # Set to `true` to automatically cancel outdated webhook builds.
-      cancel_previous_builds: true
-    scripts:
-      - &get_latest_tag
-        name: Get latest tag
-        script: set TAG=$(git describe --tags)
-      - &set_up_key_properties
-        name: Set up Android key.properties
-        script: |
-          echo $FCI_KEYSTORE | base64 --decode > $FCI_KEYSTORE_PATH
-          cat >> "$FCI_BUILD_DIR/hello_world/android/key.properties" <<EOF
-          storePassword=$FCI_KEYSTORE_PASSWORD
-          keyPassword=$FCI_KEY_PASSWORD
-          keyAlias=$FCI_KEY_ALIAS
-          storeFile=$FCI_KEYSTORE_PATH
-          EOF
-      - &flutter_analyze
-        name: Run static code analysis
-        script: flutter analyze
-      - &set_up_local_properties
-        name: Set up Android local properties
-        script: echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
-      - &setup_keychain
-        name: Setup keychain
-        script: keychain initialize
-      - &fetch_signing_files
-        name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "${BUNDLE_ID}" \
-              --type IOS_APP_STORE \
-              --create
-      - &get_packages
-        name: Get packages
-        script: flutter packages pub get
-      - &build_apk
-        name: Build Android APK
-        script: flutter build apk --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER
-      - &build_aab
-        name: Build Android AAB
-        script: flutter build appbundle --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER
-      - &setup_signing_certificates
-        name: Set up signing certificate
-        script: keychain add-certificates
-      - &use_profiles
-        name: Use Xcode profiles
-        script: xcode-project use-profiles
-      - &pod_install
-        name: Run pod install
-        script: find . -name "Podfile" -execdir pod install \;
-      - &build_ios
-        name: Build and sign iOS
-        script: flutter build ipa --release --flavor ${FLAVOR} -t lib/main/main_${FLAVOR}.dart --build-number=$PROJECT_BUILD_NUMBER --export-options-plist=/Users/builder/export_options.plist
-    artifacts:
-      - build/app/outputs/apk/${FLAVOR}/release/*.apk
-      - build/app/outputs/bundle/${FLAVOR}Release/*.aab
-      - build/app/outputs/mapping/**/mapping.txt
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
-    publishing:
-      app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-      email:
-        recipients: *tst_emails
-      google_play:
-        credentials: $GPLAY_KEY
-        track: internal
   production:
     name: production
     # working_directory: hello_world
@@ -214,70 +115,11 @@ workflows:
         - $HOME/.pub-cache
         - $HOME/.gradle/caches
     scripts:
-      # - *flutter_analyze
-      # - *get_latest_tag
-      # - *set_up_key_properties
+
       - *set_up_local_properties
 
-      - name: Verify GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        script: |
-          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is not set"
-            exit 1
-          else
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is set to: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
-          fi
+   
 
-      - name: Verify CM_KEYSTORE_PATH
-        script: |
-          if [ -z "$CM_KEYSTORE_PATH" ]; then
-            echo "CM_KEYSTORE_PATH is not set"
-            exit 1
-          else
-            echo "CM_KEYSTORE_PATH is set to: $CM_KEYSTORE_PATH"
-          fi
-      - name: Verify CM_KEY_ALIAS
-        script: |
-          if [ -z "$CM_KEY_ALIAS" ]; then
-            echo "CM_KEY_ALIAS is not set"
-            exit 1
-          else
-            echo "CM_KEY_ALIAS is set to: $CM_KEY_ALIAS"
-          fi
-      - name: Verify CM_KEY_PASSWORD
-        script: |
-          if [ -z "$CM_KEY_PASSWORD" ]; then
-            echo "CM_KEY_PASSWORD is not set"
-            exit 1
-          else
-            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
-          fi
-
-      - name: Verify CM_KEY_PASSWORD
-        script: |
-          if [ -z "$CM_KEY_PASSWORD" ]; then
-            echo "CM_KEY_PASSWORD is not set"
-            exit 1
-          else
-            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
-          fi
-      - name: Check build number
-        script: |
-          echo $(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
-      - name: list all firebase apps
-        script: echo $FIREBASE_SERVICE_ACCOUNT
-      # - *setup_keychain
-      # - *fetch_signing_files
-      # - *get_packages
-      # - *build_apk
-      # - *build_aab
-      # - *setup_signing_certificates
-      # - *use_profiles
-      # - *pod_install
-      # - *build_ios
-      #
-      # --build-name=1.0.0 \
-      # --build-number=$BUILD_NUMBER --verbose
       - *shorebird_install
       # - name: Build with Shorebird
       #   script: |
@@ -288,26 +130,26 @@ workflows:
 
       - name: Build with for ios
         script: |
-          shorebird release ios --no-codesign \
+          shorebird release ios \
            --flavor production \
            --target lib/main/main_production.dart
 
-      - name: nav to ios
-        script: |
-          cd build/ios/archive
-          ls
-          if [ -d "Runner.xcarchive" ]; then
-              # Export the .ipa file from the .xcarchive without an ExportOptions.plist
-              xcodebuild -exportArchive \
-                -archivePath Runner.xcarchive \
-                -exportPath Runner.ipa
+      # - name: nav to ios
+      #   script: |
+      #     cd build/ios/archive
+      #     ls
+      #     if [ -d "Runner.xcarchive" ]; then
+      #         # Export the .ipa file from the .xcarchive without an ExportOptions.plist
+      #         xcodebuild -exportArchive \
+      #           -archivePath Runner.xcarchive \
+      #           -exportPath Runner.ipa
               
-              # Move the generated .ipa to the root or artifacts folder
-              mv Runner.ipa build/ios
-          else
-            echo "Runner.xcarchive not found!"
-            exit 1
-          fi
+      #         # Move the generated .ipa to the root or artifacts folder
+      #         mv Runner.ipa build/ios
+      #     else
+      #       echo "Runner.xcarchive not found!"
+      #       exit 1
+      #     fi
 
     artifacts:
       # - build/app/outputs/apk/${FLAVOR}/release/*.apk
@@ -338,161 +180,3 @@ workflows:
       #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
       #   track: $GOOGLE_PLAY_TRACK
       #   submit_as_draft: false
-
-  patch-android-workflow:
-    name: Patch Production Android Workflow
-    environment:
-      flutter: 3.22.2
-      xcode: latest
-      cocoapods: default
-      vars:
-        <<: *automatic_ios_signing
-        <<: *android_custom_signing
-        FLAVOR: production
-        BUNDLE_ID: com.gta6android.newshub
-        PACKAGE_NAME: "com.gta6android.newshub"
-        GOOGLE_PLAY_TRACK: "alpha"
-      groups:
-        - google_play
-        - firebase_credentials
-        - shorebird_credentials
-    # triggering:
-    #   events:
-    #     - push
-    #   branch_patterns:
-    #     - pattern: patch
-    scripts:
-      - name: Set up Android local properties
-        script: echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
-
-      - *shorebird_install
-      - name: Patch Android app with Shorebird
-        script: shorebird patch android  \
-          --flavor production \
-          --target lib/main/main_production.dart
-    artifacts:
-      - build/**/outputs/**/*.aab
-
-  firebase:
-    name: firebase
-    # working_directory: hello_world
-    max_build_duration: 60
-    environment:
-      flutter: 3.22.2
-      xcode: latest
-      cocoapods: default
-      vars:
-        <<: *automatic_ios_signing
-        <<: *android_custom_signing
-        FLAVOR: production
-        BUNDLE_ID: com.gta6android.newshub
-        PACKAGE_NAME: "com.gta6android.newshub"
-        GOOGLE_PLAY_TRACK: "alpha"
-      groups:
-        - google_play
-        - firebase_credentials
-        - shorebird_credentials
-      android_signing:
-        - gta6newshub
-    cache:
-      cache_paths:
-        - $HOME/Library/Caches/CocoaPods
-        - $HOME/.pub-cache
-        - $HOME/.gradle/caches
-    scripts:
-      # - *flutter_analyze
-      # - *get_latest_tag
-      # - *set_up_key_properties
-      - *set_up_local_properties
-
-      - name: Verify GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        script: |
-          if [ -z "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" ]; then
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is not set"
-            exit 1
-          else
-            echo "GCLOUD_SERVICE_ACCOUNT_CREDENTIALS is set to: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
-          fi
-
-      - name: Verify CM_KEYSTORE_PATH
-        script: |
-          if [ -z "$CM_KEYSTORE_PATH" ]; then
-            echo "CM_KEYSTORE_PATH is not set"
-            exit 1
-          else
-            echo "CM_KEYSTORE_PATH is set to: $CM_KEYSTORE_PATH"
-          fi
-      - name: Verify CM_KEY_ALIAS
-        script: |
-          if [ -z "$CM_KEY_ALIAS" ]; then
-            echo "CM_KEY_ALIAS is not set"
-            exit 1
-          else
-            echo "CM_KEY_ALIAS is set to: $CM_KEY_ALIAS"
-          fi
-      - name: Verify CM_KEY_PASSWORD
-        script: |
-          if [ -z "$CM_KEY_PASSWORD" ]; then
-            echo "CM_KEY_PASSWORD is not set"
-            exit 1
-          else
-            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
-          fi
-
-      - name: Verify CM_KEY_PASSWORD
-        script: |
-          if [ -z "$CM_KEY_PASSWORD" ]; then
-            echo "CM_KEY_PASSWORD is not set"
-            exit 1
-          else
-            echo "CM_KEY_PASSWORD is set to: $CM_KEY_PASSWORD"
-          fi
-      - name: Check build number
-        script: |
-          echo $(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
-
-      # - *setup_keychain
-      # - *fetch_signing_files
-      # - *get_packages
-      # - *build_apk
-      # - *build_aab
-      # - *setup_signing_certificates
-      # - *use_profiles
-      # - *pod_install
-      # - *build_ios
-      #
-      - *shorebird_install
-      - name: Build with Shorebird
-        script: |
-          BUILD_NUMBER=$(($(google-play get-latest-build-number --package-name "$PACKAGE_NAME" --tracks="$GOOGLE_PLAY_TRACK") + 1))
-          shorebird release android \
-          --flavor production \
-          --target lib/main/main_production.dart \
-          --build-name=1.0.0 \
-          --build-number=$BUILD_NUMBER
-    artifacts:
-      - build/app/outputs/apk/${FLAVOR}/release/*.apk
-      - build/app/outputs/bundle/${FLAVOR}Release/*.aab
-      - build/app/outputs/mapping/**/mapping.txt
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
-    publishing:
-      # firebase:
-      #   firebase_service_account: $FIREBASE_SERVICE_ACCOUNT
-      #   android:
-      #     app_id: 1:702054967401:android:9e7b4b1572668834a19af8
-
-      #   ios:
-      #     app_id: app-1-702054967401-ios-ca5ee95a371e8561a19af8
-
-      # app_store_connect:
-      #   api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-      #   key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-      #   issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-      email:
-        recipients: *prod_emails
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: $GOOGLE_PLAY_TRACK
-        submit_as_draft: false
