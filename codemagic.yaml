@@ -131,10 +131,7 @@ workflows:
 
       - name: Build with for ios
         script: |
-          shorebird release ios \
-           --flavor production \
-           --target lib/main/main_production.dart
-
+          shorebird release ios
       # - name: nav to ios
       #   script: |
       #     cd build/ios/archive
